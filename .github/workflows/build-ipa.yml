@@ -20,18 +20,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Select Xcode 16.2
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: '16.2'
-
-      - name: Toolchain info
+      - name: Verify toolchain and iOS SDK
         run: |
+          set -euo pipefail
+          # 不用 setup-xcode 固定版本：runner 镜像只保留「默认 Xcode + 匹配的 iOS SDK」，
+          # 切到旧版本会出现 "iOS xx.x Platform Not Installed"（Xcode 还在，平台被裁掉了）。
+          # 工程只要求 Xcode >= 15（CLANG_CXX_LANGUAGE_STANDARD = gnu++17），用默认版本最稳。
           xcodebuild -version
           echo "--- available SDKs ---"
           xcodebuild -showsdks
           echo "--- targets & schemes ---"
           xcodebuild -list -project Subsonic.xcodeproj
+          if ! xcodebuild -showsdks | grep -q "iOS"; then
+            echo "::error::runner 上没有可用的 iOS SDK，无法构建 iOS app"
+            exit 1
+          fi
 
       - name: Build (signing disabled)
         run: |
