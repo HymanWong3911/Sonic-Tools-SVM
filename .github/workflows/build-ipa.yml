@@ -48,10 +48,17 @@ jobs:
       - name: Package into unsigned .ipa
         run: |
           set -euo pipefail
-          APP="build/Build/Products/Release-iphoneos/Sonic Tools.app"
-          if [ ! -d "$APP" ]; then
-            echo "::error::未找到 $APP"; ls -la build/Build/Products/ || true; exit 1
+          # 不硬编码 .app 名（target 名 = "Sonic Tools"，但 productName 元数据是 Subsonic），
+          # 直接在产物目录里找唯一的 .app，避免命名不一致导致整条流水线失败
+          APP_DIR="build/Build/Products/Release-iphoneos"
+          if [ ! -d "$APP_DIR" ]; then
+            echo "::error::未找到 $APP_DIR"; find build/Build/Products -maxdepth 2 2>/dev/null || true; exit 1
           fi
+          APP="$(find "$APP_DIR" -maxdepth 1 -type d -name '*.app' | head -1)"
+          if [ -z "$APP" ]; then
+            echo "::error::$APP_DIR 下没有 .app"; ls -la "$APP_DIR"; exit 1
+          fi
+          echo "产物 App: $APP"
           rm -rf build/ipa && mkdir -p build/ipa/Payload
           cp -R "$APP" build/ipa/Payload/
           cd build/ipa
@@ -60,9 +67,11 @@ jobs:
           echo "=== 产物 ==="
           ls -lh SonicTools-unsigned.ipa
           echo "=== Info.plist 摘要 ==="
-          /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "build/ipa/Payload/Sonic Tools.app/Info.plist"
-          /usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "build/ipa/Payload/Sonic Tools.app/Info.plist"
-          /usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "build/ipa/Payload/Sonic Tools.app/Info.plist"
+          PL="build/ipa/Payload/$(basename "$APP")/Info.plist"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$PL"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$PL"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$PL"
+          /usr/libexec/PlistBuddy -c "Print :MinimumOSVersion" "$PL" 2>/dev/null || true
 
       - name: Upload as workflow artifact
         uses: actions/upload-artifact@v4
