@@ -1,0 +1,88 @@
+name: Build unsigned IPA
+
+# 在云端 macOS runner 上编译 Sonic Tools SVM，产出「未签名」的 .ipa。
+# 未签名的 ipa 不能直接装，但可以用 iPhone 上的 eSign / SideStore / AltStore
+# 用你自己的 Apple ID 签名后安装 —— 这样完全不需要在 Mac 上装 Xcode。
+on:
+  push:
+    branches: [feature/build-ready]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build IPA on macOS runner
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode 16.2
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '16.2'
+
+      - name: Toolchain info
+        run: |
+          xcodebuild -version
+          xcodebuild -list -project Subsonic.xcodeproj
+
+      - name: Build (signing disabled)
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -project Subsonic.xcodeproj \
+            -scheme "Sonic Tools" \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM="" \
+            -derivedDataPath ./build \
+            build
+
+      - name: Package into unsigned .ipa
+        run: |
+          set -euo pipefail
+          APP="build/Build/Products/Release-iphoneos/Sonic Tools.app"
+          if [ ! -d "$APP" ]; then
+            echo "::error::未找到 $APP"; ls -la build/Build/Products/ || true; exit 1
+          fi
+          rm -rf build/ipa && mkdir -p build/ipa/Payload
+          cp -R "$APP" build/ipa/Payload/
+          cd build/ipa
+          zip -qry "../SonicTools-unsigned.ipa" Payload
+          cd ..
+          echo "=== 产物 ==="
+          ls -lh SonicTools-unsigned.ipa
+          echo "=== Info.plist 摘要 ==="
+          /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "build/ipa/Payload/Sonic Tools.app/Info.plist"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "build/ipa/Payload/Sonic Tools.app/Info.plist"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "build/ipa/Payload/Sonic Tools.app/Info.plist"
+
+      - name: Upload as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SonicTools-unsigned-ipa
+          path: build/SonicTools-unsigned.ipa
+          if-no-files-found: error
+
+      - name: Publish to rolling release 'ci-ipa'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          # 每次覆盖同一个 tag，下载链接保持稳定，方便手机直接打开
+          if gh release view ci-ipa >/dev/null 2>&1; then
+            gh release delete ci-ipa --yes --cleanup-tag || true
+          fi
+          gh release create ci-ipa \
+            --title "Sonic Tools SVM — unsigned IPA (CI build)" \
+            --notes "自动构建产物。由 GitHub Actions macOS runner 从 \`feature/build-ready\` 分支编译，**未签名**。请用 eSign / SideStore / AltStore 以自己的 Apple ID 签名后安装。" \
+            build/SonicTools-unsigned.ipa
+          echo "下载链接："
+          echo "https://github.com/HymanWong3911/Sonic-Tools-SVM/releases/download/ci-ipa/SonicTools-unsigned.ipa"
