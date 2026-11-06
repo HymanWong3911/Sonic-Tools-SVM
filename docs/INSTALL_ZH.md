@@ -308,6 +308,7 @@ SideStore 跑起来之后：
 | **设置里找不到「开发者模式」** | 还没装过开发者签名的 App，开关不显示 | 先装上 AltStore，**点开它一次**，再回去找 |
 | **AltStore 装上了但打不开** | 没开开发者模式 | 设置 → 隐私与安全性 → 开发者模式 → 开 → **重启** |
 | **装 AltStore 时弹窗要求移除扩展** | 正常提示 | 选 **Keep App Extensions** |
+| **侧载 App 装上后不自动旋转 / 界面卡在竖屏** | 设备侧临时状态：iOS 26 上首次安装、证书刷新或开发者模式切换后，旋转状态偶尔会卡住 | **重启手机**即可恢复；要根治，在 VC 里显式声明 `shouldAutorotate` → YES、`supportedInterfaceOrientations` → `UIInterfaceOrientationMaskAll`、`prefersInterfaceOrientationLocked` → NO（iOS 16+） |
 | **App 装上了点开闪退** | 没在 VPN与设备管理 里信任证书 | 设置 → 通用 → VPN与设备管理 → 信任 |
 | **AltStore 说连不上 AltServer** | Mac↔iPhone 没配对，或不在同一网络 | ① 确认两边同一 Wi-Fi<br>② 重新信任 Mac（移除后重插线）<br>③ 兜底：**把 ipa 直接拖到 Mac 上的 AltServer 窗口**（走安装代理，可绕过配对） |
 | **不弹「信任此电脑」** | 数据线只供电 / USB 受限模式 | 换数据线 + 直插机身口 + 解锁手机后重插 |
