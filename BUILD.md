@@ -3,6 +3,9 @@
 > 上游：`tmatsugaki/Sonic-Tools-SVM`（GPL-3.0），本 fork：`HymanWong3911/Sonic-Tools-SVM`
 > 分支：`feature/build-ready`
 
+> 📖 **手机端完整安装教程（分步图解 + 全部报错排查）→ [`docs/INSTALL_ZH.md`](docs/INSTALL_ZH.md)**
+> 本文讲的是**构建侧**；你只是想把这个 App 装到手机上，直接看 INSTALL_ZH.md 更快。
+
 ## ⭐ 方案 A（推荐）：GitHub Actions 云端出 IPA，手机上签名安装
 
 **Mac 上什么都不用装**——不用下载 16 GB Xcode，不用 macOS 15+，不占你系统盘仅剩的 12 GiB。

@@ -29,6 +29,18 @@ Allows you to output the data of Sound Spectrum, Sound Spectrogram, and every RM
 You can use the data files by Files.app on iOS or iTunes File Sharing on Mac.</br>
 Please note that the output file of Spectrogram is not small not like other data files.</br>
 
+## Installation
+**This app has been removed from the iOS App Store** (verified across 157 storefronts).
+The author explicitly welcomes users to build their own version from the open-source code.
+
+- **[中文安装教程（含完整故障排查）→ `docs/INSTALL_ZH.md`](docs/INSTALL_ZH.md)**
+- Build details, CI pipeline, and local Xcode build: [`BUILD.md`](BUILD.md)
+- Source architecture analysis: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+
+The fastest route needs **no Xcode and no developer account**:
+GitHub Actions builds an unsigned `.ipa` on a free macOS runner, then you sign it on-device
+with AltStore → SideStore (auto-renewing certificate, your computer never has to be connected again).
+
 ## for Progammers
 Despite this FFT analizer part is somewhat famous for detecting precise frequency stably in Japan, there's nothing special except for Lagrange interpolation. Please try to add Lagrange interpolation into your own FFT code.
 
