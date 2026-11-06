@@ -448,6 +448,31 @@ OSStatus renderTone(
 
 @implementation ToneGeneratorViewController
 
+
+#pragma mark - Rotation
+// Explicitly opt into auto-rotation.
+//
+// UISupportedInterfaceOrientations in Info.plist already lists all four
+// orientations, and no view controller overrode the rotation callbacks, so the
+// behaviour depended entirely on UIKit's implicit defaults. Those defaults
+// changed across iOS releases (notably iOS 26, where supportedInterface-
+// Orientations is honoured differently and a controller that exposes a single
+// orientation is treated as "locked"), which left the app stuck in portrait.
+// Declaring the intent here makes the behaviour identical on every iOS version.
+//
+// prefersInterfaceOrientationLocked is iOS 16+; it is a no-op on earlier systems.
+- (BOOL)shouldAutorotate {
+    return YES;
+}
+
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
+    return UIInterfaceOrientationMaskAll;
+}
+
+- (BOOL)prefersInterfaceOrientationLocked {
+    return NO;
+}
+
 #pragma mark - View lifecycle
 
 - (void)viewDidLoad {
