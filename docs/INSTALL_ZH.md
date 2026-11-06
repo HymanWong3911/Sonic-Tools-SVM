@@ -304,7 +304,7 @@ SideStore 跑起来之后：
 
 | 症状 | 真因 | 解法 |
 |---|---|---|
-| **HTTP 429 / "Apple's authentication servers returned an error"** | Apple 对**出口 IP** 的限流。国内家宽多为 **CGNAT 共享 IP**，同运营商下大量用户同时侧载 → 整个 IP 段被限 | ① **换出口 IP**：4G/5G 随身 WiFi 或借手机热点<br>② **等 15–30 分钟**，期间**千万别反复点**（每次重试都会把封禁往后推）<br>③ 查 `appleid.apple.com → 设备`，删掉不用的设备（免费账号 9 个设备令牌上限，用满了等和换 IP 都没用）<br>④ 确认用的是 App 专用密码 |
+| **HTTP 429 / "Apple's authentication servers returned an error"** | Apple 对**出口 IP** 的限流。国内家宽多为 **CGNAT 共享 IP**，同运营商下大量用户同时侧载 → 整个 IP 段被限 | ① **换出口 IP**：4G/5G 随身 WiFi 或借手机热点<br>② **等 15–30 分钟**，期间**千万别反复点**（每次重试都会把封禁往后推）<br>③ 查 `appleid.apple.com → 设备`，删掉不用的设备（报错原文是 `Non-developer Apple IDs are limited to creating 10 App IDs per week`；**额度用满时等和换 IP 都没用**，只能删旧的腾位置）<br>④ 确认用的是 App 专用密码 |
 | **设置里找不到「开发者模式」** | 还没装过开发者签名的 App，开关不显示 | 先装上 AltStore，**点开它一次**，再回去找 |
 | **AltStore 装上了但打不开** | 没开开发者模式 | 设置 → 隐私与安全性 → 开发者模式 → 开 → **重启** |
 | **装 AltStore 时弹窗要求移除扩展** | 正常提示 | 选 **Keep App Extensions** |
